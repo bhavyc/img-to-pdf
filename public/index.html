@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostPDF | Privacy-First PDF Tools</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .logo i { color: var(--primary); }
+
+        .subtitle {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            background: #dcfce7;
+            color: #166534;
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* --- Grid --- */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        /* --- Cards --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            background: #e0e7ff;
+            color: var(--primary);
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        h3 { font-size: 1.25rem; margin-bottom: 8px; font-weight: 600; }
+        p.desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; flex-grow: 1; }
+
+        /* --- Forms & Inputs --- */
+        form { margin-top: auto; }
+
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: #fafafa;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        .file-upload-label span {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* --- Buttons --- */
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover { background: var(--primary-hover); }
+        
+        button:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* --- Loading Spinner --- */
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ffffff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            GhostPDF
+        </div>
+        <p class="subtitle">Secure, in-memory PDF processing. Your files never touch a hard drive.</p>
+        <div class="badge"><i class="ph-fill ph-shield-check"></i> 0% Storage / 100% Privacy</div>
+    </header>
+
+    <!-- TOOLS GRID -->
+    <div class="tool-grid">
+        
+        <!-- TOOL 1: MERGE -->
+        <div class="card">
+            <div class="card-icon"><i class="ph ph-files"></i></div>
+            <h3>Merge Documents</h3>
+            <p class="desc">Combine multiple PDF files into a single document instantly.</p>
+            
+            <form id="mergeForm">
+                <div class="file-upload-wrapper">
+                    <label class="file-upload-label">
+                        <span><i class="ph ph-upload-simple"></i> Choose PDF files</span>
+                        <!-- Multiple allowed -->
+                        <input type="file" name="pdfs" multiple accept=".pdf" required onchange="updateFileName(this, true)">
+                    </label>
+                </div>
+                <button type="submit">
+                    <span class="btn-text">Merge Files</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- TOOL 2: SPLIT -->
+        <div class="card">
+            <div class="card-icon"><i class="ph ph-scissors"></i></div>
+            <h3>Split PDF</h3>
+            <p class="desc">Extract the first page of your document into a standalone file.</p>
+            
+            <form id="splitForm">
+                <div class="file-upload-wrapper">
+                    <label class="file-upload-label">
+                        <span><i class="ph ph-upload-simple"></i> Choose PDF file</span>
+                        <input type="file" name="pdf" accept=".pdf" required onchange="updateFileName(this)">
+                    </label>
+                </div>
+                <button type="submit">
+                    <span class="btn-text">Split File</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- TOOL 3: IMAGES TO PDF (NEW) -->
+        <div class="card">
+            <div class="card-icon"><i class="ph ph-images"></i></div>
+            <h3>Images to PDF</h3>
+            <p class="desc">Convert JPG or PNG images into a single, clean PDF file.</p>
+            
+            <form id="imgToPdfForm">
+                <div class="file-upload-wrapper">
+                    <label class="file-upload-label">
+                        <span><i class="ph ph-upload-simple"></i> Choose Images</span>
+                        <!-- Accepts Images, Multiple allowed -->
+                        <input type="file" name="images" multiple accept="image/png, image/jpeg, image/jpg" required onchange="updateFileName(this, true)">
+                    </label>
+                </div>
+                <button type="submit">
+                    <span class="btn-text">Convert to PDF</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- TOOL 4: ROTATE -->
+        <div class="card">
+            <div class="card-icon"><i class="ph ph-arrows-clockwise"></i></div>
+            <h3>Rotate Pages</h3>
+            <p class="desc">Fix orientation issues by rotating all pages 90° clockwise.</p>
+            
+            <form id="rotateForm">
+                <div class="file-upload-wrapper">
+                    <label class="file-upload-label">
+                        <span><i class="ph ph-upload-simple"></i> Choose PDF file</span>
+                        <input type="file" name="pdf" accept=".pdf" required onchange="updateFileName(this)">
+                    </label>
+                </div>
+                <button type="submit">
+                    <span class="btn-text">Rotate PDF</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2024 GhostPDF Privacy Tool. Open Source & Secure.</p>
+    </footer>
+
+</div>
+
+<!-- LOGIC -->
+<script>
+    // 1. UI Helper: Updates label text when files are selected
+    function updateFileName(input, multiple = false) {
+        const label = input.parentElement.querySelector('span');
+        
+        if (input.files && input.files.length > 0) {
+            // Style changes for active state
+            label.style.color = '#0f172a';
+            label.style.borderColor = '#4f46e5';
+            label.style.background = '#e0e7ff';
+
+            if (multiple && input.files.length > 1) {
+                label.innerHTML = `<i class="ph-fill ph-files"></i> ${input.files.length} files selected`;
+            } else {
+                label.innerHTML = `<i class="ph-fill ph-check-circle"></i> ${input.files[0].name}`;
+            }
+        } else {
+            // Reset to default
+            label.innerHTML = `<i class="ph ph-upload-simple"></i> ${multiple ? 'Choose files' : 'Choose file'}`;
+            label.style.color = ''; 
+            label.style.background = '';
+        }
+    }
+
+    // 2. Core Logic: Handles sending data to Node.js and downloading result
+    async function handleFormSubmit(event, endpoint) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const button = form.querySelector('button');
+        const btnText = button.querySelector('.btn-text');
+        const spinner = button.querySelector('.spinner');
+        const originalText = btnText.innerText;
+
+        // UI Loading State
+        button.disabled = true;
+        btnText.style.display = 'none';
+        spinner.style.display = 'block';
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Server error');
+            }
+
+            // Receive the binary blob
+            const blob = await response.blob();
+            
+            // Create invisible download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            
+            // Extract filename from headers or fallback
+            const contentDisp = response.headers.get('Content-Disposition');
+            let filename = 'processed_document.pdf';
+            if (contentDisp && contentDisp.includes('filename=')) {
+                filename = contentDisp.split('filename=')[1].replace(/['"]/g, '');
+            }
+            
+            a.download = filename;
+            document.body.appendChild(a);
+            
+            // Trigger download
+            a.click();
+            
+            // Clean memory
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+        } catch (err) {
+            alert('⚠️ Error: ' + err.message);
+        } finally {
+            // Reset UI
+            button.disabled = false;
+            btnText.style.display = 'block';
+            spinner.style.display = 'none';
+            btnText.innerText = originalText;
+            
+            // Reset Form and Labels
+            form.reset();
+            const fileInput = form.querySelector('input[type="file"]');
+            updateFileName(fileInput, fileInput.hasAttribute('multiple'));
+        }
+    }
+
+    // 3. Attach Event Listeners to Forms
+    document.getElementById('mergeForm').onsubmit = (e) => handleFormSubmit(e, '/api/merge');
+    document.getElementById('splitForm').onsubmit = (e) => handleFormSubmit(e, '/api/split');
+    document.getElementById('rotateForm').onsubmit = (e) => handleFormSubmit(e, '/api/rotate');
+    document.getElementById('imgToPdfForm').onsubmit = (e) => handleFormSubmit(e, '/api/images-to-pdf');
+
+</script>
+
+</body>
+</html>
